@@ -13,7 +13,8 @@ def cnn_model_fn(features, labels, mode):
   """Model function for CNN."""
   # Input Layer
   # Reshape X to 4-D tensor: [batch_size, width, height, channels]
-  # MNIST images are 28x28 pixels, and have one color channel
+  # MNIST images are 28x28 pixels, and one greyscale color channel, hence [-1, 28, 28, 1]
+  # the "-1" bacth size is to indicate the dynamically aspect of this dimension
   input_layer = tf.reshape(features["x"], [-1, 28, 28, 1])
 
   # Convolutional Layer #1
@@ -52,6 +53,11 @@ def cnn_model_fn(features, labels, mode):
   # Output Tensor Shape: [batch_size, 7, 7, 64]
   pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
 
+  # Convolutional Layer #3
+  # Computes 128 features using a 3x3 filter.
+  # Padding is added to preserve width and height.
+  # Input Tensor Shape: [batch_size, 7, 7, 64]
+  # Output Tensor Shape: [batch_size, 7, 7, 128]
   conv3 = tf.layers.conv2d(
       inputs=pool1,
       filters=128,
@@ -62,8 +68,8 @@ def cnn_model_fn(features, labels, mode):
   pool3 = tf.layers.max_pooling2d(inputs=conv3, pool_size=[2, 2], strides=2)
 
   # Flatten tensor into a batch of vectors
-  # Input Tensor Shape: [batch_size, 7, 7, 64]
-  # Output Tensor Shape: [batch_size, 7 * 7 * 64]
+  # Input Tensor Shape: [batch_size, 7, 7, 128]
+  # Output Tensor Shape: [batch_size, 7 * 7 * 128]
   pool3_flat = tf.reshape(pool3, [-1, 7 * 7 * 128])
 
   # Dense Layer
